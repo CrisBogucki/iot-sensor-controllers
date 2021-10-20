@@ -18,7 +18,6 @@ DallasTemperature sensors(&oneWire);
 
 void wifi_connect()
 {
-    
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     console_print("Connecting to " + String(WIFI_SSID));
     while (WiFi.status() != WL_CONNECTED)
@@ -45,24 +44,39 @@ void init_sensors()
 
 void read_sensors()
 {
+  sensors.begin();
+  sensors_count = sensors.getDeviceCount();
   sensors.requestTemperatures(); 
 
   for (int i = 0;  i < sensors_count;  i++)
   {
-    Serial.print("Sensor ");
-    Serial.print(i+1);
-    Serial.print(" : ");
+    console_print("Sensor " + String(i+1) + " : ");
+
+    DeviceAddress tempDeviceAddress;
+    sensors.getAddress(tempDeviceAddress,i);
     float tempC = sensors.getTempCByIndex(i);
-    Serial.print(tempC);
-    Serial.print("°");//shows degrees character
-    Serial.print("C  |  ");
-    Serial.print(DallasTemperature::toFahrenheit(tempC));
-    Serial.print("°");//shows degrees character
-    Serial.println("F");
+    if(tempC == -127.00)
+      return;
+      
+    String tempF = String(DallasTemperature::toFahrenheit(tempC));
+    
+    console_print(String(tempC));
+    console_print("°");//shows degrees character
+    console_print("C  |  ");
+    console_print(tempF);
+    console_print("°");//shows degrees character
+    console_print("F | ");
+    print_address(tempDeviceAddress);
+
+    console_println("");
   }
-  
-  Serial.println("");
-  delay(1000);
+
+  if(sensors_count > 0)
+  {
+    console_println("");
+    delay(1000);
+  }
+   
 }
 
 void setup() {
@@ -77,7 +91,6 @@ void setup() {
   console_println("=======================================");
   
   init_sensors();
-  read_sensors();
   wifi_connect();
 
 }
@@ -90,6 +103,15 @@ void console_print(String a)
 void console_println(String a)
 {
   Serial.println(a);
+}
+
+void print_address(DeviceAddress deviceAddress)
+{
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    Serial.print(deviceAddress[i], HEX);
+  }
 }
 
 void loop() {
