@@ -113,15 +113,38 @@ void web_server()
   server.on("/", []()
   {
     IPAddress ip = WiFi.localIP();
-   
-    content = "<!DOCTYPE HTML>\r\n";
-    content += "<html><center><h1>Hostname: </h1><p></p><h2>IP: ";
-    
-    content += "</h2><p></p><h3>";
-    
-    content += "</h3><p></p><form method='get' action='cleareeprom'><input type='submit' value='Clear EEPROM'>";
-    content += "</center></html>";
-    console_print("idzie content");
+     content = "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>";
+    content += "<html lang='en'>";
+    content += "<head>";
+        content += "<title>CB Sensors Controller</title>";
+        content += "<style type='text/css'>";
+            content += "html { font-family: 'Calibri', serif; background: #fff; color: #666; padding: 20px; }";
+            content += "table{ width: 100%; margin: auto;}";
+            content += "table tr td {width: 50%}";
+            content += "table tr td:first-child{ text-align: right;}";
+            content += "input{ width: 200px; border: 1px solid #666; color: #111; border-radius: 5px; padding: 5px }";
+            content += "button{ width:200px; padding: 5px; border: 1px solid #ddd; border-radius: 3px }";
+            content += "h3{ position: relative; color: #000; font-size: 22px; text-shadow: 2px 2px 10px #000}";
+            content += "h3 > span { color: #2574be; font-size: 13px; position: absolute; margin-top: 20px; margin-left: -10px}";
+            content += ".text-center{ text-align: center !important }";
+        content += "</style>";
+    content += "</head>";
+    content += "<body>";
+    content += "<form action='/'>";
+        content += "<table>";
+            content += "<tr><td colspan='2' class='text-center'><h3>SENSOR CONTROLLER <span>by CrisB</span></h3></td></tr>";
+            content += "<tr><td>Host Name</td><td> : <label><input type='text' name='host_name' value='CB SENSOR CONTROLLER' required /></label></td></tr>";
+            content += "<tr><td>SSID Name </td><td> : <label><input type='text' name='ssid_name' required /></label></td></tr>";
+            content += "<tr><td>SSID Password </td><td> : <label><input type='password' name='ssid_pass' required /></label></td></tr>";
+            content += "<tr><td>Token ID </td><td> : <label><input type='password' name='token_id' required /></label></td></tr>";
+            content += "<tr><td>Sent Interval (sec)</td><td> : <label><input type='number' name='interval' required /></label></td></tr>";
+            content += "<tr><td colspan='2' class='text-center'><br><br><button type='submit'>Update</button></td></tr>";
+            content += "<tr><td colspan='2' class='text-center'><br>JSON VALUE<br>";
+            content += "<pre style='text-align: left; width: 200px; margin-left: auto; margin-right: auto' xml:lang='text/json'></pre></td></tr>";
+        content += "</table>";
+    content += "</form>";
+    content += "</body>";
+    content += "</html>";
     server.send(200, "text/html", content);        
   });
 }
@@ -145,6 +168,5 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   //read_sensors();
-
   server.handleClient();
 }
