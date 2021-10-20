@@ -2,13 +2,15 @@
 #include <DallasTemperature.h>
 #include <ESP8266WiFi.h>
 
+#define APP_NAME "CB Sensors Controller"
+#define APP_VERSION "v. 0.0.1"
+
 #define ONE_WIRE_BUS D4   
 #define WIFI_SSID "WLAN-CENTER"
 #define WIFI_PASSWORD "Tq9h39DjigFgREYH"
 
 
-#define APP_NAME "CB Sensors Controller"
-#define APP_VERSION "v. 0.0.1"
+int sensors_count = 0;
 
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -32,21 +34,35 @@ void wifi_connect()
     console_println("");
 }
 
-int init_sensors()
+void init_sensors()
 {
-  int sensors_count;
   sensors.begin();
   sensors_count = sensors.getDeviceCount();
   
   console_println("Locating devices...");
   console_println("Found " + String(sensors_count) + " sensors");
-  
-  return sensors_count;
 }
 
 void read_sensors()
 {
+  sensors.requestTemperatures(); 
 
+  for (int i = 0;  i < sensors_count;  i++)
+  {
+    Serial.print("Sensor ");
+    Serial.print(i+1);
+    Serial.print(" : ");
+    float tempC = sensors.getTempCByIndex(i);
+    Serial.print(tempC);
+    Serial.print("°");//shows degrees character
+    Serial.print("C  |  ");
+    Serial.print(DallasTemperature::toFahrenheit(tempC));
+    Serial.print("°");//shows degrees character
+    Serial.println("F");
+  }
+  
+  Serial.println("");
+  delay(1000);
 }
 
 void setup() {
@@ -60,7 +76,8 @@ void setup() {
   console_println("     " + String(APP_NAME) + " " + String(APP_VERSION));
   console_println("=======================================");
   
-  int a = init_sensors();
+  init_sensors();
+  read_sensors();
   wifi_connect();
 
 }
@@ -77,5 +94,5 @@ void console_println(String a)
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  read_sensors();
 }
