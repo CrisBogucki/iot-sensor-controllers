@@ -103,48 +103,92 @@ void print_address(DeviceAddress deviceAddress)
   }
 }
 
-void web_server()
+
+String scan_networks()
 {
-  
+  String res = "";
+      int n = WiFi.scanNetworks();
+    if (n == 0)
+    {
+      res += "<table><tr><td><h3>No networks found!</h3></td></tr></table>";
+    }
+    else
+    {
+      res += "<div class='offset-lg-4 col-lg-4'><table><tr><td><ol>";
+      res += "<li><h4>Available WiFi networks</h4></li>"
+      for (int i = 0; i < n; ++i)
+      {
+        // Print SSID and RSSI for each network found
+        res += "<li>";
+        res += WiFi.SSID(i);
+        res += "   (";
+        res += WiFi.RSSI(i);
+        res += " dBm = ";
+        if (WiFi.RSSI(i)>-50)
+        {res += "100";}
+        else if (WiFi.RSSI(i)<-100)
+        {res += "0";}
+        else
+        {res += 2*(WiFi.RSSI(i)+100);}
+        res += (WiFi.encryptionType(i) == ENC_TYPE_NONE)?"%),   open ":"%),   protected ";
+        res += "</li>";
+      }
+      res += "</ol></td></tr></table></div>";
+    }
+
+    return res;
+}
+
+void web_server()
+{ 
   server.begin();
   
-  console_print("idzie content 12");
-  
   server.on("/", []()
-  {
+  {    
     IPAddress ip = WiFi.localIP();
      content = "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>";
     content += "<html lang='en'>";
     content += "<head>";
+        content += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
         content += "<title>CB Sensors Controller</title>";
-        content += "<style type='text/css'>";
-            content += "html { font-family: 'Calibri', serif; background: #fff; color: #666; padding: 20px; }";
-            content += "table{ width: 100%; margin: auto;}";
-            content += "table tr td {width: 50%}";
-            content += "table tr td:first-child{ text-align: right;}";
-            content += "input{ width: 200px; border: 1px solid #666; color: #111; border-radius: 5px; padding: 5px }";
-            content += "button{ width:200px; padding: 5px; border: 1px solid #ddd; border-radius: 3px }";
-            content += "h3{ position: relative; color: #000; font-size: 22px; text-shadow: 2px 2px 10px #000}";
-            content += "h3 > span { color: #2574be; font-size: 13px; position: absolute; margin-top: 20px; margin-left: -10px}";
-            content += ".text-center{ text-align: center !important }";
-        content += "</style>";
+        content += "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css'>";
+        content += "<script src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js'  type='text/javascript'></script>";
     content += "</head>";
-    content += "<body>";
-    content += "<form action='/'>";
-        content += "<table>";
-            content += "<tr><td colspan='2' class='text-center'><h3>SENSOR CONTROLLER <span>by CrisB</span></h3></td></tr>";
-            content += "<tr><td>Host Name</td><td> : <label><input type='text' name='host_name' value='CB SENSOR CONTROLLER' required /></label></td></tr>";
-            content += "<tr><td>SSID Name </td><td> : <label><input type='text' name='ssid_name' required /></label></td></tr>";
-            content += "<tr><td>SSID Password </td><td> : <label><input type='password' name='ssid_pass' required /></label></td></tr>";
-            content += "<tr><td>Token ID </td><td> : <label><input type='password' name='token_id' required /></label></td></tr>";
-            content += "<tr><td>Sent Interval (sec)</td><td> : <label><input type='number' name='interval' required /></label></td></tr>";
-            content += "<tr><td colspan='2' class='text-center'><br><br><button type='submit'>Update</button></td></tr>";
-            content += "<tr><td colspan='2' class='text-center'><br>JSON VALUE<br>";
-            content += "<pre style='text-align: left; width: 200px; margin-left: auto; margin-right: auto' xml:lang='text/json'></pre></td></tr>";
-        content += "</table>";
-    content += "</form>";
+    content += "<body class='container-sm'>";
+    content += "<div class='mt-5 bd-brand-logos mb-3 offset-lg-4 col-lg-4'>";
+        content += "<div class='bd-brand-item'><span class='h1'>SENSOR CONTROLLER</span></div>";
+    content += "</div>";
+    
+        content += "<form action='settings.html'>";
+            
+            content += "<div class='mb-3 offset-lg-4 col-lg-4 '>";
+                content += "<label for='host_name' class='form-label'>Host Name</label>";
+                content += "<input type='text' class='form-control' id='host_name' placeholder='Enter host name' focus required>";
+            content += "</div>";
+            content += "<div class='mb-3 offset-lg-4 col-lg-4'>";
+                content += "<label for='ssid_name' class='form-label'>SSID Name</label>";
+                content += "<input type='text' class='form-control' id='ssid_name' placeholder='Enter ssid name' required>";
+            content += "</div>";
+            content += "<div class='mb-3 offset-lg-4 col-lg-4'>";
+                content += "<label for='ssid_password' class='form-label'>SSID Password</label>";
+                content += "<input type='password' class='form-control' id='ssid_password' placeholder='Enter ssid password' required>";
+            content += "</div>";
+            content += "<div class='mb-3 offset-lg-4 col-lg-4'>";
+                content += "<label for='token_id' class='form-label'>Token ID</label>";
+                content += "<input type='text' class='form-control' id='token_id' placeholder='Enter token id' required>";
+            content += "</div>";
+            content += "<div class='mb-3 offset-lg-4 col-lg-4'>";
+                content += "<label for='interval' class='form-label'>Sent Interval (sec)</label>";
+                content += "<input type='number' class='form-control' id='interval' placeholder='Enter interval in seconds' required>";
+            content += "</div>";
+        
+            content += "<button type='submit' class='offset-lg-4 col-lg-4 col-12 btn btn-outline-primary'>Update</button>";
+            
+        content += "</form>";
+        content += scan_networks();
     content += "</body>";
     content += "</html>";
+
     server.send(200, "text/html", content);        
   });
 }
@@ -167,6 +211,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //read_sensors();
+  read_sensors();
   server.handleClient();
 }
