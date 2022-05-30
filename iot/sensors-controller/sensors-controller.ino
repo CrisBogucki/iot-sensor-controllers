@@ -12,9 +12,9 @@
 #define ONE_WIRE_BUS D4
 
 char* HOST_NAME = "CB Sensors Controller";
-String WIFI_SSID = "WLAN-CENTER";
-String WIFI_PASSWORD = "Tq9h39DjigFgREYH";
-String SERVICE_URL = "https://iot-storage-db5ff-default-rtdb.europe-west1.firebasedatabase.app/temp-history.json";
+String WIFI_SSID = "";
+String WIFI_PASSWORD = "";
+String SERVICE_URL = "";
 String TOKEN_ID = "8ef050eb-9397-4ffb-b206-339e6fd85d7b";
 String EpochTime = "";
 int WIFI_STATUS = 0;
